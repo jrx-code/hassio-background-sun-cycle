@@ -1,4 +1,4 @@
-/* sun-cycle-bg 2.4.0 — a living day-cycle background for Home Assistant dashboards.
+/* sun-cycle-bg 2.4.1 — a living day-cycle background for Home Assistant dashboards.
  *
  * An invisible Lovelace card that paints the view background from the real
  * position of the sun and moon, and keeps it moving all day:
@@ -1645,16 +1645,24 @@
       layer.appendChild(buildStarsRotate(cfg, W, H));
     } else {
       const halfA = buildStarsDrift(cfg, W, H);
-      const halfB = halfA.cloneNode(true);      // seamless wrap for the drift
-      halfB.style.left = '50%';
-      // flares are added per half, after the clone, so the two halves do not
-      // flash in lockstep one screen-width apart
-      addFlares(halfA, cfg, W, H, sel, style, 0);
-      addFlares(halfB, cfg, W, H, sel, style, cfg.flares.count);
       const drift = document.createElement('div');
       drift.className = 'scs-drift';
       drift.appendChild(halfA);
-      drift.appendChild(halfB);
+      /* The second half exists only to wrap a drifting field. With drift 0 it
+         sat one screen-width off to the right for good, and its twinkle
+         animations (half of them) could not go to the compositor: Chromium
+         reports them as "no visible change" and runs them on the main thread
+         (measured on a Pi 5 kiosk, 2.4.0: 15 of 30, about a quarter of the
+         style recalculation). 2.4.1 builds it only when the field moves. */
+      if (cfg.drift > 0) {
+        const halfB = halfA.cloneNode(true);    // seamless wrap for the drift
+        halfB.style.left = '50%';
+        addFlares(halfB, cfg, W, H, sel, style, cfg.flares.count);
+        drift.appendChild(halfB);
+      }
+      // flares are added per half, after the clone, so the two halves do not
+      // flash in lockstep one screen-width apart
+      addFlares(halfA, cfg, W, H, sel, style, 0);
       layer.appendChild(drift);
     }
     // handles: on demand (a tuning page), and for the schedulers below
