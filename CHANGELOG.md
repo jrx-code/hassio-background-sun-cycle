@@ -3,6 +3,11 @@
 All notable changes to this card. Versions before 1.16.0 are described in the
 [GitHub releases](https://github.com/jrx-code/hassio-sun-cycle-bg/releases).
 
+## 2.4.1
+
+### Fixed
+- A static star field (`stars.drift: 0`) builds one half instead of two. The second half only wraps a drifting field; without drift it sat one screen-width off to the right, and Chromium kept its twinkle animations on the main thread ("no visible change"). On a Raspberry Pi 5 kiosk that was 15 of 30 twinkle animations and about a quarter of the style recalculation. Drifting fields are unchanged.
+
 ## 2.4.0
 
 ### Changed
