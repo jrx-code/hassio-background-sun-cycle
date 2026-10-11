@@ -3,6 +3,11 @@
 All notable changes to this card. Versions before 1.16.0 are described in the
 [GitHub releases](https://github.com/jrx-code/hassio-sun-cycle-bg/releases).
 
+## 2.4.2
+
+### Fixed
+- A drifting or static star field of up to 400 star elements is built one small element per star instead of one box-shadow element per twinkle group and size. Those fifteen elements were each a composited layer as large as the frame, and the GPU blended all of them into every frame: on a Raspberry Pi 5 kiosk at night that was 92 % janky frames with the field shown (3-7 % with it hidden). With small elements the same 160-star field runs at 21 %. Stars keep their box-shadow look, twinkle groups and positions. Larger fields and the rotating field are built as before.
+
 ## 2.4.1
 
 ### Fixed

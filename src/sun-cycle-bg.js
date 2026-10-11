@@ -1,4 +1,4 @@
-/* sun-cycle-bg 2.4.1 — a living day-cycle background for Home Assistant dashboards.
+/* sun-cycle-bg 2.4.2 — a living day-cycle background for Home Assistant dashboards.
  *
  * An invisible Lovelace card that paints the view background from the real
  * position of the sun and moon, and keeps it moving all day:
@@ -417,6 +417,12 @@
     { dur: 6.7, lo: 0.15, hi: 0.9 },
     { dur: 8.1, lo: 0.05, hi: 0.95 },
   ];
+  // A drifting or static field up to this many star elements is built one
+  // element per star (starDotsApart); above it, and for a rotating field
+  // (thousands of stars), one box-shadow element per group and size. Small
+  // elements cost per star (Pi 5: 160 -> 21 %, 400 -> 39 %, 800 -> 85 %
+  // janky frames) while the grouped field costs 83-98 % whatever the count.
+  const STAR_APART_MAX = 400;
   // [diameter px, share of the count] — "mixed" is a crude magnitude ladder.
   const STAR_SIZES = {
     flat: [[3, 1]],
@@ -490,7 +496,8 @@
     let css =
       sel + ' .scs{position:absolute;border-radius:50%;background:#eaf3ff;will-change:opacity;}' +
       sel + ' .scs-drift{position:absolute;top:0;left:0;width:200%;height:100%;}' +
-      sel + ' .scs-half{position:absolute;top:0;width:50%;height:100%;}';
+      sel + ' .scs-half{position:absolute;top:0;width:50%;height:100%;}' +
+      sel + ' .scs-sh{background:none;}';
     if (cfg.drift > 0 && !cfg.rotate) {
       css += '@keyframes ' + sel.slice(1) + '-drift{from{transform:translateX(-50%)}to{transform:translateX(0)}}' +
         sel + ' .scs-drift{animation:' + sel.slice(1) + '-drift ' + cfg.drift +
@@ -567,17 +574,48 @@
     return dot;
   }
 
+  /* The same group, one element per star. A group element above is a
+     composited layer as large as the frame: its twinkle runs on the
+     compositor, but the GPU still blends every such layer into every frame,
+     and three sizes make fifteen of them. On a Pi 5 kiosk at night that was
+     73-86 % janky frames with the field shown and 3-7 % with it hidden;
+     stopping the twinkle did not help, the layer count did. With one small
+     element per star the layers cover a few pixels each. A sibling keeps its
+     box-shadow look: its dot sits `off` px to the right, out of sight, and
+     casts the shadow back onto the star. */
+  function starDotsApart(cfg, i, px, n, pts) {
+    const out = [starDot(cfg, i, px, 1, pts)];          // the seed, with its glow
+    const d = px * cfg.size;
+    for (let j = 1; j < n; j++) {
+      const blur = (Math.random() * 4 + 2) * cfg.glow;
+      const spread = Math.random() * 1.8 * cfg.glow * cfg.size;
+      const off = Math.ceil(d + 2 * spread + 2 * blur + 2);
+      const el = document.createElement('div');
+      el.className = 'scs scs-sh scs' + i;
+      el.style.width = el.style.height = d.toFixed(2) + 'px';
+      el.style.left = (Math.round(pts[j][0]) + off) + 'px';
+      el.style.top = Math.round(pts[j][1]) + 'px';
+      el.style.boxShadow = -off + 'px 0 ' + blur.toFixed(2) + 'px ' + spread.toFixed(2) +
+        'px rgba(215,235,255,1)';
+      out.push(el);
+    }
+    return out;
+  }
+
   /* Drifting field: two identical halves sliding east to west (or static). */
   function buildStarsDrift(cfg, W, H) {
     const half = document.createElement('div');
     half.className = 'scs-half';
     half.style.left = '0';
+    // a drifting field is built twice (the wrap), so it counts double
+    const apart = cfg.count * (cfg.drift > 0 ? 2 : 1) <= STAR_APART_MAX;
     STAR_SIZES[cfg.sizes].forEach(([px, share]) => {
       const n = Math.max(1, Math.round((cfg.count / STAR_GROUPS.length) * share));
       STAR_GROUPS.forEach((g, i) => {
         const pts = [];
         for (let j = 0; j < n; j++) pts.push([Math.random() * W, Math.random() * H]);
-        half.appendChild(starDot(cfg, i, px, n, pts));
+        if (apart) starDotsApart(cfg, i, px, n, pts).forEach((el) => half.appendChild(el));
+        else half.appendChild(starDot(cfg, i, px, n, pts));
       });
     });
     return half;
