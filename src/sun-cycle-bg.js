@@ -1,4 +1,4 @@
-/* sun-cycle-bg 2.4.2 — a living day-cycle background for Home Assistant dashboards.
+/* sun-cycle-bg 2.4.3 — a living day-cycle background for Home Assistant dashboards.
  *
  * An invisible Lovelace card that paints the view background from the real
  * position of the sun and moon, and keeps it moving all day:
@@ -4037,9 +4037,23 @@ void main(){
       // at once: the first leaves are scattered over the frame instead of all entering at the edge
       const naraz = !D.liscieStart;
       if (naraz) D.liscieStart = true;
+      // How far a leaf drifts sideways while it falls the height of the frame (mean gust, mean depth).
+      // New leaves fall in from above the frame or from the upwind side, spread over that drift, so they
+      // land evenly across the frame: in a light wind they used to enter only at the upwind edge and reach
+      // the ground a few hundred px from it, which left the far side of the screen empty.
+      // Means of the motion below: depth z 0.72 (sideways 0.60 of V, settling 0.89 of H*0.045), swell G ~0.3.
+      // Drift = sideways speed x fall time, about 0.37 W at 2 km/h, 0.8 W at 10 km/h, 2.7 W at 45 km/h.
+      const dryf = (0.12 + w.kmh / 40) * W / 6 * 0.87 * 0.60 / (0.045 * 0.89 * 1.0);
       for (let r = 0; r < (naraz ? Math.ceil(ile * 0.6) : 1); r++) if (D.liscie.length < ile && (naraz || Math.random() < dt * (0.8 + 3 * s + 2 * G))) {
         const z = [0.45, 0.7, 1][Math.random() * 3 | 0];
-        D.liscie.push({ x: naraz ? Math.random() * W : (kier > 0 ? -60 * k : W + 60 * k), y: Math.random() * H * 0.7, z, kom: Math.random() * D.leafSprites.length | 0,
+        let x, y;
+        if (naraz) { x = Math.random() * W; y = Math.random() * H * 0.7; }
+        else {
+          const r0 = Math.random() * (W + dryf);
+          if (r0 < W) { x = kier > 0 ? r0 : W - r0; y = -60 * k; }               // from above, anywhere along the top
+          else { x = kier > 0 ? -60 * k : W + 60 * k; y = Math.min(0.85, (r0 - W) / dryf) * H; } // from the side, lower the farther upwind
+        }
+        D.liscie.push({ x, y, z, kom: Math.random() * D.leafSprites.length | 0,
                         bok: (34 + Math.random() * 22) * k * z * skala, vx: 0, vy: 0, th: Math.random() * 6.3, om: (Math.random() - 0.5) * 2,
                         psi: Math.random() * 6.3, psiV: 2 + Math.random() * 5, os: Math.random() * 3.14, ph: Math.random() * 6.3,
                         phV: 1.8 + Math.random() * 2.2 });

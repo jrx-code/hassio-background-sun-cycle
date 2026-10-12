@@ -3,6 +3,11 @@
 All notable changes to this card. Versions before 1.16.0 are described in the
 [GitHub releases](https://github.com/jrx-code/hassio-sun-cycle-bg/releases).
 
+## 2.4.3
+
+### Fixed
+- In a light wind the leaves (and the spring and summer sets) stayed on the upwind side of the frame. After the first scatter every new leaf entered at the upwind edge in the top 70 % and, drifting sideways slower than it settles, reached the ground a few hundred px from that edge: at 2 km/h 100 % of the leaves were in the upwind fifth of a 1829 px frame. New leaves now fall in from above the frame anywhere along the top, or from the upwind side lower down the farther upwind they start, spread over the drift a leaf makes while it falls the height of the frame. Simulated over ten minutes: every tenth of the frame holds 8-11 % of the leaves at 2 km/h, 8-15 % at 8 km/h, with the same number of leaves on screen.
+
 ## 2.4.2
 
 ### Fixed
