@@ -3,7 +3,7 @@
     "step": {
       "user": {
         "title": "Sun Cycle Background",
-        "description": "Adds the sun-cycle-bg card to every dashboard (no resource needed), keeps shared profiles for it and a settings page behind Configure. A card with `profile: <name>` takes that profile."
+        "description": "Adds the sun-cycle-bg card to every dashboard (no resource needed), keeps shared profiles for it and a settings page behind Configure. A card with `profile: night` takes the profile named night."
       }
     },
     "abort": {
