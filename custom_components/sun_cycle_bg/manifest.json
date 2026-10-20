@@ -12,11 +12,11 @@
     "panel_custom",
     "websocket_api"
   ],
-  "documentation": "https://github.com/jrx-code/hassio-sun-cycle-bg",
+  "documentation": "https://github.com/jrx-code/hassio-background-sun-cycle",
   "integration_type": "service",
   "iot_class": "calculated",
-  "issue_tracker": "https://github.com/jrx-code/hassio-sun-cycle-bg/issues",
+  "issue_tracker": "https://github.com/jrx-code/hassio-background-sun-cycle/issues",
   "requirements": [],
   "single_config_entry": true,
-  "version": "2.4.3"
+  "version": "2.4.4"
 }

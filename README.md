@@ -70,7 +70,7 @@ golden hour, stars at night.
 ## Quick start
 
 **Install**
-1. HACS → menu (⋮) → *Custom repositories* → paste `https://github.com/jrx-code/hassio-sun-cycle-bg`, category **Integration** → *Add*.
+1. HACS → menu (⋮) → *Custom repositories* → paste `https://github.com/jrx-code/hassio-background-sun-cycle`, category **Integration** → *Add*.
 2. Find *Sun Cycle Background* → *Download*.
 3. Restart Home Assistant.
 4. *Settings → Devices & services → Add integration → Sun Cycle Background* → *Submit*.
@@ -328,6 +328,13 @@ entry has to make way for the integration:
 2. Add the repository again with category **Integration**, install, restart,
    add the integration. Cards keep their YAML and draw as before; the default
    pictures now come from `/sun_cycle_bg/`.
+
+### Repository renamed in 2.4.4
+
+The repository is now `jrx-code/hassio-background-sun-cycle` (was `hassio-sun-cycle-bg`).
+Nothing to do: GitHub redirects the old address, HACS follows the repository by its id,
+and the integration serves the card from `/sun_cycle_bg/`, not from a folder named after
+the repository.
 
 ### Upgrading from 1.15.1 or earlier (repository renamed)
 

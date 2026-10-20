@@ -1,6 +1,6 @@
 {
   "name": "Sun Cycle Background",
-  "filename": "sun-cycle-bg.js",
+  "content_in_root": false,
   "render_readme": true,
   "homeassistant": "2025.1.0"
 }

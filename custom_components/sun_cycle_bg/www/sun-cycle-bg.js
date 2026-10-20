@@ -1,4 +1,4 @@
-/* sun-cycle-bg 2.4.3 — a living day-cycle background for Home Assistant dashboards.
+/* sun-cycle-bg 2.4.4 — a living day-cycle background for Home Assistant dashboards.
  *
  * An invisible Lovelace card that paints the view background from the real
  * position of the sun and moon, and keeps it moving all day:
@@ -5947,7 +5947,7 @@ void main(){
     name: 'Sun Cycle Background',
     // the picker renders the card itself instead of a grey placeholder
     preview: true,
-    documentationURL: 'https://github.com/jrx-code/hassio-sun-cycle-bg',
+    documentationURL: 'https://github.com/jrx-code/hassio-background-sun-cycle',
     description: 'Living day-cycle view background: sky palette, the sun on its real diurnal arc with crepuscular rays, a moon with its own ephemeris and phase, the planets where the Sol integration puts them, a star field with flares, meteor showers from the IMO calendar and the real ISS, and the weather: cloud, rain, snow, hail, fog, lightning, wind and aurora.',
   });
 })();
