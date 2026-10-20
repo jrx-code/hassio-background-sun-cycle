@@ -1,4 +1,4 @@
-/* sun-cycle-bg 2.4.4 — a living day-cycle background for Home Assistant dashboards.
+/* sun-cycle-bg 2.4.5 — a living day-cycle background for Home Assistant dashboards.
  *
  * An invisible Lovelace card that paints the view background from the real
  * position of the sun and moon, and keeps it moving all day:

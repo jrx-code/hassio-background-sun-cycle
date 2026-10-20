@@ -3,10 +3,15 @@
 All notable changes to this card. Versions before 1.16.0 are described in the
 [GitHub releases](https://github.com/jrx-code/hassio-background-sun-cycle/releases).
 
+## 2.4.5
+
+### Fixed
+- `hacs.json` keeps `filename: sun-cycle-bg.js` again. 2.4.4 dropped it as plugin-only, but it is what lets a 1.x install added under the Dashboard category find the card among the release assets and keep updating.
+
 ## 2.4.4
 
 ### Changed
-- The repository is renamed to `hassio-background-sun-cycle` (was `hassio-sun-cycle-bg`); GitHub redirects the old address and an installed integration updates as before. `hacs.json` drops the plugin-only `filename` key, and a Validate workflow (hassfest + HACS action) runs on GitHub.
+- The repository is renamed to `hassio-background-sun-cycle` (was `hassio-sun-cycle-bg`); GitHub redirects the old address and an installed integration updates as before. A Validate workflow (hassfest + HACS action) runs on GitHub.
 
 ### Fixed
 - The setup dialog text wrote `profile: <name>`, which hassfest rejects as HTML in a translation; it now gives an example name.

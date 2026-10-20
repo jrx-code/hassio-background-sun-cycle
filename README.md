@@ -336,6 +336,10 @@ Nothing to do: GitHub redirects the old address, HACS follows the repository by 
 and the integration serves the card from `/sun_cycle_bg/`, not from a folder named after
 the repository.
 
+A 1.x install still added under the **Dashboard** category is different: HACS puts a
+plugin in a folder named after the repository, so follow *Upgrading from 1.x (Dashboard plugin) to 2.0* above and
+move to the integration.
+
 ### Upgrading from 1.15.1 or earlier (repository renamed)
 
 The repository was renamed from `ha-sun-cycle-bg` to `hassio-sun-cycle-bg` in 1.15.2.
