@@ -39,28 +39,34 @@ All notable changes to this card. Versions before 1.16.0 are described in the
 ### Added
 - `weather.wind_entity`: wind speed from a sensor (e.g. a Netatmo anemometer) instead of the weather entity.
 
+## 2.3.3
 
 ### Changed
 - Clouds are back to the classic strips by default (`weather.clouds_style: classic`): painted once and slid by the compositor, they move smoothly on the Pi 5 kiosk. The shader clouds (`clouds_style: shader`) stuttered there and, slid between renders (2.3.1), jumped back and forth, because their tiers move at different speeds. The other new effects stay.
 - Classic cloud opacity lowered (low 1 -> 0.75, middle 0.92 -> 0.7, high 0.62 -> 0.5) so the dashboard's text stays readable.
 
+## 2.3.2
 
 ### Fixed
 - Clouds (`effects_style: new`) looked like smeared white paint and covered the dashboard's text: the low tier is smaller (sky-plane scale 3.4 instead of 2.8), warped half as much, with a lumpier cauliflower edge; thin edges are translucent by day too, and a cloud's opacity tops out at about 0.8.
 - The middle tier and the cirrus ended in a hard horizontal line (at 90 % and 80 % of the frame height); they now fade out before it.
 
+## 2.3.1
 
 ### Fixed
 - Clouds stuttered on the Pi 5 kiosk: the shader was capped at 15 fps and managed about 10 uneven frames a second there (the WebView runs near 28 fps, GPU-bound), so the clouds moved in visible jumps. When clouds are the only shader effect, they are now rendered every 2 s on a canvas 25 % wider than the frame, and between renders the compositor slides that canvas at the clouds' own speed (taken from the shader's sky plane), so they glide at the page's frame rate and the GPU renders them 20 times less often. With fog, snow or aurora on as well the canvas renders as before. Kiosk: about 59 frames a second, 0 to 0.3 % janky.
 
+## 2.3.0
 
 ### Changed
 - Wind (`effects_style: new`): the white wisps and the pollen are gone. Wind is drawn as bundles of three thin strands in a light mint tint that run together on a wave, each strand curling into one loop at its own place; a bundle draws on from the head, is erased from the tail and drifts downwind, and more of them come in a stronger wind and in a gust (two at once on `low`, three otherwise). The leaves stay as they were. Chosen from five curly-line proposals on `demo/tlo-wiatr-zawijasy.html` (variant 3). Pi 5 kiosk: 0 % janky frames at 50 km/h, day and night.
 
+## 2.2.2
 
 ### Fixed
 - Clouds at night (`effects_style: new`) looked like pale mould on the dark sky: the shader still lit them from the sun's side, with bright cauliflower edges and the cloud-top colour. From the sun at -4 deg to -12 deg the light turns into night light: from below (a town's warm grey glow, stronger towards the horizon and under a full deck) or from the moon when it is up (lit side and silver lining towards it); the modelling is nearly flat, cloud edges soften and thin out, cirrus and the middle tier fade, the deck's rolls calm down. Day and dusk are unchanged.
 
+## 2.2.1
 
 ### Fixed
 - Clouds (`effects_style: new`): the cloud nearest the top of the frame was a big soft blob smeared outwards from the middle. The sky plane's perspective is milder (a cloud at the top about twice the size of one at the horizon, not four times), the low tier is denser, its edges are crisper near the top and the domain warp is weaker there.
