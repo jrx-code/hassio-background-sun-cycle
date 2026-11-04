@@ -70,10 +70,11 @@ golden hour, stars at night.
 ## Quick start
 
 **Install**
-1. HACS → menu (⋮) → *Custom repositories* → paste `https://github.com/jrx-code/hassio-background-sun-cycle`, category **Integration** → *Add*.
-2. Find *Sun Cycle Background* → *Download*.
-3. Restart Home Assistant.
-4. *Settings → Devices & services → Add integration → Sun Cycle Background* → *Submit*.
+1. HACS → search for **Sun Cycle Background** → *Download*.
+2. Restart Home Assistant.
+3. *Settings → Devices & services → Add integration → Sun Cycle Background* → *Submit*.
+
+[![Open your Home Assistant instance and open this repository in HACS.](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=jrx-code&repository=hassio-background-sun-cycle&category=integration)
 
 **Put the sky behind a dashboard**
 1. Open the dashboard → pencil (edit).
@@ -156,13 +157,16 @@ Since 2.0.0 this repository is one Home Assistant **integration**,
 page, installed and updated together. (1.x was a HACS *Dashboard* plugin; see
 [Upgrading from 1.x](#upgrading-from-1x-dashboard-plugin-to-20-integration).)
 
-### HACS (custom repository)
+### HACS
 
-1. HACS → menu → *Custom repositories* → add this repo URL, category
-   **Integration**.
-2. Install **Sun Cycle Background** and restart Home Assistant.
-3. *Settings → Devices & services → Add integration → Sun Cycle Background*.
+1. The integration is in the HACS default store: open HACS, search for
+   **Sun Cycle Background**, download it and restart Home Assistant.
+2. *Settings → Devices & services → Add integration → Sun Cycle Background*.
    One entry, no fields.
+
+If the search finds nothing yet, add it by hand: HACS → menu (⋮) →
+*Custom repositories* → `https://github.com/jrx-code/hassio-background-sun-cycle`,
+category **Integration**.
 
 The integration serves the card from `custom_components/sun_cycle_bg/www/` at
 `/sun_cycle_bg/` and adds the dashboard resource for it by itself
