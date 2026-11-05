@@ -3,6 +3,11 @@
 All notable changes to this card. Versions before 1.16.0 are described in the
 [GitHub releases](https://github.com/jrx-code/hassio-background-sun-cycle/releases).
 
+## 2.4.6
+
+### Added
+- Manifest declares `categories` (Weather & alerts), so the Home Assistant 2026.11 Marketplace lists the integration under that category. No functional change.
+
 ## 2.4.5
 
 ### Fixed

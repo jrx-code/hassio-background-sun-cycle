@@ -70,7 +70,7 @@ golden hour, stars at night.
 ## Quick start
 
 **Install**
-1. HACS → search for **Sun Cycle Background** → *Download*.
+1. HACS (or the Marketplace on Home Assistant 2026.11+) → search for **Sun Cycle Background** → *Download*.
 2. Restart Home Assistant.
 3. *Settings → Devices & services → Add integration → Sun Cycle Background* → *Submit*.
 
@@ -159,8 +159,8 @@ page, installed and updated together. (1.x was a HACS *Dashboard* plugin; see
 
 ### HACS
 
-1. The integration is in the HACS default store: open HACS, search for
-   **Sun Cycle Background**, download it and restart Home Assistant.
+1. The integration is in the HACS default store: open HACS (or the Marketplace on Home
+   Assistant 2026.11+), search for **Sun Cycle Background**, download it and restart Home Assistant.
 2. *Settings → Devices & services → Add integration → Sun Cycle Background*.
    One entry, no fields.
 
