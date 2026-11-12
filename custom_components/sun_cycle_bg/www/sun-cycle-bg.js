@@ -5655,9 +5655,16 @@ void main(){
               // the exact one, and an off-grid value survives untouched.
               licz.textContent = '';
               licz.classList.add('scb-num');
+              // A text field, not type=number: a number input shows the
+              // browser locale's decimal comma (2,2) and hands back '' for a
+              // value typed with the other separator. The field always shows
+              // a dot, takes either on the way in, and the phone keyboard
+              // still opens on digits.
               const dokladne = document.createElement('input');
-              dokladne.type = 'number';
-              dokladne.min = p.min; dokladne.max = p.max; dokladne.step = 'any';
+              dokladne.type = 'text';
+              dokladne.inputMode = 'decimal';
+              dokladne.autocomplete = 'off';
+              dokladne.spellcheck = false;
               dokladne.value = String(v);
               dokladne.dataset.k = p.k + ':liczba';
               licz.appendChild(dokladne);
@@ -5676,9 +5683,10 @@ void main(){
             else {
               const d = pole._dokladne;
               if (zrodlo === 'liczba') {
-                const surowa = Number(d.value);
+                const tekst = String(d.value).trim().replace(',', '.');
+                const surowa = tekst === '' ? NaN : Number(tekst);
                 nowa = isFinite(surowa) ? clamp(surowa, p.min, p.max) : p.dom;
-                if (nowa !== surowa) d.value = String(nowa);
+                if (d.value !== String(nowa)) d.value = String(nowa);   // also '2,2' -> '2.2'
                 pole.value = String(nowa);          // knob follows, snapping as it likes
               } else {
                 nowa = Number(pole.value);
