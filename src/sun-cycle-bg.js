@@ -1,4 +1,4 @@
-/* sun-cycle-bg 2.4.6 — a living day-cycle background for Home Assistant dashboards.
+/* sun-cycle-bg 2.5.0 — a living day-cycle background for Home Assistant dashboards.
  *
  * An invisible Lovelace card that paints the view background from the real
  * position of the sun and moon, and keeps it moving all day:
@@ -1834,6 +1834,10 @@
       // clouds (2.3.3): the classic strips slid by the compositor by default; the shader
       // clouds stuttered on the Pi 5 kiosk and, slid between renders, jumped back and forth
       clouds_style: w.clouds_style === 'shader' ? 'shader' : 'classic',
+      // snow (2.5.0): classic tiles by default, like the clouds; the 6-depth shader was GPU-bound on
+      // the Pi 5 kiosk. snow_flakes: pompons, six-armed crystals, or both (classic snow only)
+      snow_style: w.snow_style === 'shader' ? 'shader' : 'classic',
+      snow_flakes: w.snow_flakes === 'pom' || w.snow_flakes === 'crystals' ? w.snow_flakes : 'mixed',
       aurora: (() => {
         const a = w.aurora;
         if (!a || typeof a !== 'object' || !str(a.kp_entity)) return null;
@@ -2371,9 +2375,56 @@
   const SNOW_DEPTHS = [
     // z, flakes per 1280 px, speed px/s, radius, sway px, sway period s, alpha
     { z: 0, n: 260, v: 28, r: 0.9, sw: 6, ss: 3.6, a: 0.55 },
-    { z: 1, n: 150, v: 50, r: 1.7, sw: 11, ss: 4.6, a: 0.75 },
-    { z: 2, n: 70, v: 85, r: 2.9, sw: 17, ss: 5.8, a: 0.92 },
+    { z: 1, n: 150, v: 50, r: 1.7, sw: 11, ss: 4.6, a: 0.75, cr: 3.4, share: 0.3, nMix: 0.73 },
+    { z: 2, n: 70, v: 85, r: 2.9, sw: 17, ss: 5.8, a: 0.92, cr: 6.4, share: 0.45, nMix: 0.66 },
   ];
+
+  /* Six-armed crystals for the classic snow (2.5.0). A shape is one main arm with
+     one to three branch pairs, mirrored and turned six times; eight shapes come from
+     a fixed seed, so the tile is the same on every load. Painted into the tile once,
+     like a pompon: a crystal costs nothing while it falls. */
+  const SNOW_CRYSTALS = (() => {
+    let seed = 777;
+    const rnd = () => { seed = (seed * 1664525 + 1013904223) >>> 0; return seed / 4294967296; };
+    const out = [];
+    for (let i = 0; i < 8; i++) {
+      const nb = 1 + Math.floor(rnd() * 3), br = [];
+      for (let j = 0; j < nb; j++) br.push({ at: 0.28 + 0.6 * (j + rnd() * 0.7) / nb, len: 0.18 + rnd() * 0.3, ang: 0.7 + rnd() * 0.5 });
+      out.push({ lw: 0.07 + rnd() * 0.07, br, tip: rnd() < 0.4, hub: rnd() < 0.5 });
+    }
+    return out;
+  })();
+  function snowCrystal(g, x, y, R, shape, rot, rgb, alpha) {
+    const col = 'rgba(' + rgb.join(',') + ',' + alpha + ')';
+    const lw = Math.max(0.9, R * shape.lw);
+    g.save();
+    g.translate(x, y);
+    g.rotate(rot);
+    g.strokeStyle = col; g.fillStyle = col; g.lineCap = 'round';
+    for (let a = 0; a < 6; a++) {
+      g.save(); g.rotate(a * Math.PI / 3);
+      g.lineWidth = lw;
+      g.beginPath(); g.moveTo(0, 0); g.lineTo(R, 0); g.stroke();
+      g.lineWidth = lw * 0.8;
+      for (const b of shape.br) {
+        const bx = R * b.at, l = R * b.len;
+        for (const sg of [-1, 1]) {
+          g.beginPath(); g.moveTo(bx, 0); g.lineTo(bx + Math.cos(b.ang) * l, sg * Math.sin(b.ang) * l); g.stroke();
+        }
+      }
+      if (shape.tip) { g.beginPath(); g.arc(R, 0, lw * 1.1, 0, 6.3); g.fill(); }
+      g.restore();
+    }
+    if (shape.hub) {
+      g.beginPath();
+      for (let h = 0; h < 6; h++) g.lineTo(Math.cos(h * Math.PI / 3) * R * 0.16, Math.sin(h * Math.PI / 3) * R * 0.16);
+      g.closePath(); g.fill();
+    }
+    g.restore();
+  }
+  // a number in 0..1 from where the flake sits: the tile repeats a flake down the
+  // tile at the same x, so every copy draws the same shape and the loop has no seam
+  const snowHash = (x, k) => { const v = Math.sin(x * 12.9898 + k * 78.233) * 43758.5453; return v - Math.floor(v); };
 
   /* Snow for `snowy`, and its share of `snowy-rainy`. Same tile-and-loop as
      the rain, plus a wrapper that sways side to side, so flakes drift instead
@@ -2389,17 +2440,27 @@
     const share = kind === 'sleet' ? 0.45 : 1;
     const kol = ctx.light.e > -4 ? [255, 255, 255] : [196, 204, 222];
     const wx = weatherWindX(ws, ctx);
-    const uzyte = weatherDepths(SNOW_DEPTHS, cfg);
+    // snow keeps two depths even on `low`: the farthest alone is a few big flakes
+    const uzyte = SNOW_DEPTHS.slice(Math.max(0, SNOW_DEPTHS.length - Math.max(2, q.depths)));
     for (const d of SNOW_DEPTHS) if (uzyte.indexOf(d) < 0) weatherDrop(layer, 'scw-snow-' + d.z);
+    const fl = cfg.snow_flakes;
     for (const d of uzyte) {
+      // crystals only where a flake is big enough to show its arms
+      const kr = d.cr ? (fl === 'crystals' ? 1 : fl === 'mixed' ? d.share : 0) : 0;
       weatherFall(layer, {
         cls: 'scw-snow-' + d.z, seed: 303 + d.z * 17,
-        n: Math.round(d.n * I * share * q.n * ctx.W / 1280),
+        n: Math.round(d.n * (fl === 'mixed' && d.nMix ? d.nMix : 1) * I * share * q.n * ctx.W / 1280),
         speed: d.v * (0.8 + 0.4 * I), period: 0.5, res: q.res * 0.75,
         // snow is light: the same wind lays it down further than rain
         slope: clamp(wx / 25, -1.4, 1.4) * (0.4 + 0.3 * d.z),
         sway: d.sw, swayS: d.ss,
         draw: (g, x, y, s) => {
+          if (kr > 0 && snowHash(x, d.z) < kr) {
+            const R = d.cr * s * 1.3;
+            snowCrystal(g, x, y, R, SNOW_CRYSTALS[Math.floor(snowHash(x, 5 + d.z) * 8) % 8],
+              snowHash(x, 9 + d.z) * 6.283, kol, d.a);
+            return;
+          }
           const r = Math.max(0.6, d.r * s * 1.3);
           if (r > 1.6) {
             const gr = g.createRadialGradient(x, y, 0, x, y, r);
@@ -3798,7 +3859,7 @@ void main(){
       };
     }
     const kind = ws.precip;
-    if (cfg.snow && (kind === 'snow' || kind === 'sleet')) {
+    if (cfg.snow && cfg.snow_style === 'shader' && (kind === 'snow' || kind === 'sleet')) {
       const I = ws.rate !== null && ws.rate !== undefined ? ws.rate : ws.intensity;
       on.snow = { uI: clamp(I * (kind === 'sleet' ? 0.45 : 1), 0.1, 1), uWind: kier * Math.abs(wx) / 25 * 0.06,
                   uDay: e > 5 ? 1 : 0, uCol: e > -4 ? [1, 1, 1] : [0.8, 0.83, 0.9] };
@@ -5206,6 +5267,10 @@ void main(){
         o: 'shader: rain and the glass drops drawn by one WebGL canvas (thin streaks in four depths, lens drops on fogged glass), 30 fps cap. classic: the older DOM strips; also the fallback without WebGL.' },
       { k: 'weather.clouds_style', et: 'clouds style', typ: 'wybor', opcje: ['classic', 'shader'], dom: 'classic', w: 'clouds_style',
         o: 'classic: cloud strips painted once and slid by the compositor, smooth and cheap. shader: clouds in perspective lit from the sun, drawn by WebGL (heavier; stutters on a slow GPU).' },
+      { k: 'weather.snow_style', et: 'snow style', typ: 'wybor', opcje: ['classic', 'shader'], dom: 'classic', w: 'snow_style',
+        o: 'classic: flake tiles painted once and slid by the compositor, smooth and cheap. shader: snow in six depths drawn by WebGL (heavier; stutters on a slow GPU such as the Pi 5 kiosk).' },
+      { k: 'weather.snow_flakes', et: 'snow flakes', typ: 'wybor', opcje: ['mixed', 'pom', 'crystals'], dom: 'mixed', w: 'snow_flakes',
+        o: 'classic snow only. mixed: soft pompons plus six-armed crystals of random shapes in the two nearer depths. pom: pompons only. crystals: crystals in the two nearer depths, dots behind them.' },
       { k: 'weather.effects_style', et: 'effects style', typ: 'wybor', opcje: ['new', 'classic'], dom: 'new', w: 'effects_style',
         o: 'new: clouds in perspective lit from the sun, fog banks, snow in six depths and the aurora drawn by one WebGL canvas; bouncing hail, fluttering leaves and branched lightning on one 2D canvas. classic: the older layers; also the fallback without WebGL.' },
       { k: 'weather.aurora.kp_entity', et: 'aurora: Kp sensor', typ: 'encja', domeny: ['sensor', 'input_number'], dom: '', hint: 'sensor.planetary_k_index',

@@ -829,6 +829,8 @@ weather:
   wind: true
   leaves: autumn
   rain_style: shader                # shader | classic
+  snow_style: classic               # classic | shader
+  snow_flakes: mixed                # mixed | pom | crystals
   effects_style: new                # new | classic
 ```
 
@@ -853,6 +855,8 @@ weather:
 | `glass` | `false` | Raindrops on the glass while it rains: they land, sit and dry, and big ones slide down leaving a trail (1.24.0). |
 | `effects_style` | `new` | How clouds, fog, snow, hail, lightning, wind with leaves and the aurora are drawn: `new` = one WebGL canvas for clouds, fog, snow and aurora plus one 2D canvas for hail, wind and lightning (2.2.0), `classic` = the layers of 1.16 to 2.1. Without WebGL the four shader effects fall back to `classic` by themselves. |
 | `rain_style` | `shader` | How rain, splashes and the drops on the glass are drawn: `shader` = one WebGL canvas (2.1.0), `classic` = the DOM strips and drops of 1.18 to 2.0. Without WebGL the card falls back to `classic` by itself. |
+| `snow_style` | `classic` | How snow is drawn: `classic` = flake tiles painted once and slid by the compositor, smooth on the Pi 5 kiosk (2.5.0, like `clouds_style`); `shader` = six depths in one WebGL pass, heavier and GPU-bound on a slow screen. |
+| `snow_flakes` | `mixed` | Classic snow only. `mixed` = soft pompons plus six-armed crystals of eight random shapes in the two nearer depths; `pom` = pompons only; `crystals` = crystals in the two nearer depths and dots behind them. Snow keeps two depths even on `quality: low`. |
 | `aurora` | none | `{kp_entity, min_kp: 5, placement: edges}`: northern lights when the Kp index reaches `min_kp`, at night, under cover below 60 % (1.25.0). |
 
 **The condition outranks the number.** Forecast models disagree, and a

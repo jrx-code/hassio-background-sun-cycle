@@ -3,6 +3,17 @@
 All notable changes to this card. Versions before 1.16.0 are described in the
 [GitHub releases](https://github.com/jrx-code/hassio-background-sun-cycle/releases).
 
+## 2.5.0
+
+### Changed
+- Snow is drawn by the classic flake tiles by default (`weather.snow_style: classic`): painted once and slid by the compositor, like the clouds since 2.3.3. The six-depth shader snow was GPU-bound on the Pi 5 kiosk (about 28 fps in the WebView, capped at 20 fps on `quality: low`) and ran in uneven frames. `snow_style: shader` brings it back.- Snow keeps two depth layers even on `quality: low`; one layer alone was a few big flakes.
+
+### Fixed
+- The editor's exact-value field takes `2,2` or `2.2` and shows a dot whatever the browser locale.
+
+### Added
+- `weather.snow_flakes: mixed | pom | crystals` (classic snow): soft pompons plus six-armed crystals of eight random shapes in the two nearer depths (`mixed`, the default), pompons only (`pom`), or crystals in front and dots behind (`crystals`). A crystal is painted into the tile once, so it costs nothing while it falls.
+
 ## 2.4.6
 
 ### Added

@@ -739,6 +739,9 @@ out.push(['FX config', ['domyslnie', 'classic', 'new', 'cos'].map((v) =>
 out.push(['FX chmury 70% dzien', czytajFX(pogoda(30, NOWE, 'cloudy', { cloud_coverage: 70 }))]);
 out.push(['FX mgla', czytajFX(pogoda(10, NOWE, 'fog', { cloud_coverage: 60 }))]);
 out.push(['FX snieg noc', czytajFX(pogoda(-20, NOWE, 'snowy', { cloud_coverage: 95, wind_speed: 30 }))]);
+// 2.5.0: snow is classic tiles by default; the shader only on request
+out.push(['SNIEG config 2.5.0', ['domyslnie', 'shader', 'cos'].map((v) => { const c = window.sunCycleBg.readWeatherConfig(v === 'domyslnie' ? {} : v === 'shader' ? { snow_style: 'shader', snow_flakes: 'crystals' } : { snow_style: 'cos', snow_flakes: 'cos' }); return [c.snow_style, c.snow_flakes]; })]);
+out.push(['FX snieg shader na zadanie', czytajFX(pogoda(-20, Object.assign({ snow_style: 'shader' }, NOWE), 'snowy', { cloud_coverage: 95 }))]);
 out.push(['FX grad + deszcz shader', czytajFX(pogoda(15, NOWE, 'hail', { cloud_coverage: 95 }))]);
 out.push(['FX burza', czytajFX(pogoda(-20, NOWE, 'lightning-rainy', { cloud_coverage: 100 }))]);
 out.push(['FX wiatr, leaves always (sierpien: summer)', czytajFX(pogoda(20, Object.assign({ leaves: 'always' }, NOWE), 'windy',
